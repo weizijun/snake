@@ -7,8 +7,9 @@ USING_NS_CC;
 
 class Snake : public CCNode
 {
+public:
 	~Snake();
-	Snake();
+	Snake(const Direction dir, int cellx, int celly);
 
 	const Direction GetDirection() const { return m_Direction; }
 	void SetDirection(const Direction direction);
@@ -21,6 +22,7 @@ class Snake : public CCNode
 	int GetNextY();
 
 	bool Move();
+
 
 private:
 	SnakeHead *m_SnakeHead;

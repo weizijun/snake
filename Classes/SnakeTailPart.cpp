@@ -3,7 +3,7 @@
 #include "SnakeConstants.h"
 
 SnakeTailPart::SnakeTailPart(const SnakeHead* head)
-	: CellEntity(head->GetCellX(),head->GetCellY(),SNAKE_BODY_IMAGE)
+	: CellEntity(head->GetCellX(),head->GetCellY(),SnakeGolbal::SNAKE_BODY_IMAGE)
 {
 
 }

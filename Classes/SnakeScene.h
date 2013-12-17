@@ -16,21 +16,31 @@ public:
 
 	static cocos2d::CCScene* scene();
 
+	void GameCircle(float dt);
+
 	CREATE_FUNC(SnakeScene);
 
-
+	bool ccTouchBegan(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent);
+	void ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent);
+	void ccTouchEnded(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent);
+	void ccTouchCancelled(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent);
+	void registerWithTouchDispatcher();
 private:
 	void SetFrogToRandomCell();
 
+	void OnGameOver();
+	void HandleNewSnakePosition();
+
 
 private:
-	int m_Store;
+	int m_nScore;
 	bool m_IsGameRunning;
 
 	CCLabelTTF* m_ScoreText;
 	CCLabelTTF* m_GameOverText;
 	CCLabelTTF* m_BeginText;
 
+	Snake *m_Snake;
 	Frog *m_Frog;
 };
 
