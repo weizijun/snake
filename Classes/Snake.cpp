@@ -70,3 +70,11 @@ bool Snake::Move()
 
 	return true;
 }
+
+void Snake::Reset()
+{
+	m_SnakeHead->SetCell(0,SnakeGolbal::CELLS_VERTICAL/2);
+	m_Direction = RIGHT;
+
+	Grow();
+}

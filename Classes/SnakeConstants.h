@@ -27,8 +27,11 @@ namespace SnakeGolbal
 
 	static const char *FROG_IMAGE = "frog.png";
 
-	static const int CELLS_HORIZON = 20;
-	static const int CELLS_VERTICAL = 12;
+	static const char *RESET_IMAGE = "redo-round.png";
+
+
+	static const int CELLS_HORIZON = 19;
+	static const int CELLS_VERTICAL = 11;
 	static const int CELL_WIDTH = 32;
 	static const int CELL_HEIGHT = CELL_WIDTH;
 	static const int CAMERA_WIDTH = CELLS_HORIZON * CELL_WIDTH; 

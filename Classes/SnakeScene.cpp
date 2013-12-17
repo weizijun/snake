@@ -27,8 +27,6 @@ bool SnakeScene::init()
 	bool t_Ret = false;
 	do 
 	{
-		CC_BREAK_IF(!CCLayer::init());
-
 		for (int i = 0; i < SnakeGolbal::LAYER_COUNT; ++i)
 		{
 			this->addChild(CCLayer::create());
@@ -43,6 +41,21 @@ bool SnakeScene::init()
 		pSprite->setPosition(ccp(size.width/2,size.height/2));
 		layer->addChild(pSprite);
 
+		layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_UI);
+		CCMenuItemImage *pResetItem = CCMenuItemImage::create(
+			SnakeGolbal::RESET_IMAGE,
+			SnakeGolbal::RESET_IMAGE,
+			this,
+			menu_selector(SnakeScene::GameResetCallback));
+
+		CC_BREAK_IF(!pResetItem);		
+		pResetItem->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width-20,20));
+
+		CCMenu* pMenu = CCMenu::create(pResetItem, NULL);
+		pMenu->setPosition(CCPointZero);
+		CC_BREAK_IF(! pMenu);
+		layer->addChild(pMenu);
+			
 		m_ScoreText = CCLabelTTF::create("Score:0",SnakeGolbal::SCORE_TTF,SnakeGolbal::SCORE_SIZE);
 		m_ScoreText->setPosition(ccp(30,size.height - 30));
 		m_ScoreText->setAnchorPoint(ccp(0,0.5));
@@ -104,7 +117,7 @@ void SnakeScene::GameCircle(float dt)
 			OnGameOver();
 		}
 
-		//HandleNewSnakePosition();		
+		HandleNewSnakePosition();		
 	}
 }
 
@@ -119,22 +132,32 @@ void SnakeScene::OnGameOver()
 	m_IsGameRunning = false;
 }
 
+void SnakeScene::GameResetCallback(CCObject* pSender)
+{
+	m_Snake->Reset();
+	m_nScore = 0;
+	m_IsGameRunning = true;
+}
+
 void SnakeScene::HandleNewSnakePosition()
 {
 	const SnakeHead *t_SnakeHead = m_Snake->GetHead();
-	if (t_SnakeHead->GetCellX() < 0 || t_SnakeHead->GetCellX() >= SnakeGolbal::CELLS_HORIZON
-		|| t_SnakeHead->GetCellY() < 0 || t_SnakeHead->GetCellY() >= SnakeGolbal::CELLS_VERTICAL)
+	if (t_SnakeHead->GetCellX() <= 0 || t_SnakeHead->GetCellX() >= SnakeGolbal::CELLS_HORIZON
+		|| t_SnakeHead->GetCellY() <= 0 || t_SnakeHead->GetCellY() >= SnakeGolbal::CELLS_VERTICAL)
 	{
+		CCLOG("x:%d,y:%d",t_SnakeHead->GetCellX(),t_SnakeHead->GetCellY());
 		OnGameOver();
 	}
-	else
+	else if(t_SnakeHead->IsInSameCell(*m_Frog))
 	{
 		m_nScore += 50;
 		char score[128] = {0};
 		sprintf(score, "Score: %d", m_nScore);
 		m_ScoreText->setString(score);
 
-		//m_Snake->Grow();		
+		m_Snake->Grow();	
+
+		this->SetFrogToRandomCell();
 	}
 }
 

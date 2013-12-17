@@ -17,6 +17,7 @@ public:
 	static cocos2d::CCScene* scene();
 
 	void GameCircle(float dt);
+	void GameResetCallback(CCObject* pSender);
 
 	CREATE_FUNC(SnakeScene);
 

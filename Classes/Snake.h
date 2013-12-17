@@ -23,6 +23,8 @@ public:
 
 	bool Move();
 
+	void Reset();
+
 
 private:
 	SnakeHead *m_SnakeHead;
