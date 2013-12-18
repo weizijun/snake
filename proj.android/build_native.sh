@@ -29,7 +29,7 @@ esac
 done
 
 # paths
-
+NDK_ROOT = "D:\android-ndk-r9b"
 if [ -z "${NDK_ROOT+aaa}" ];then
 echo "please define NDK_ROOT"
 exit 1
