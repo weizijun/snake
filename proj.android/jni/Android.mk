@@ -14,7 +14,7 @@ LOCAL_SRC_FILES := hellocpp/main.cpp \
 				   ../../Classes/Snake.cpp \
 				   ../../Classes/SnakeHead.cpp \
 				   ../../Classes/SnakeScene.cpp \
-				   ../../Classes/SnakeTailPart.cpp
+				   ../../Classes/SnakeTailPart.cpp 
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes
 
