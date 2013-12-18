@@ -74,7 +74,15 @@ bool Snake::Move()
 void Snake::Reset()
 {
 	m_SnakeHead->SetCell(0,SnakeGolbal::CELLS_VERTICAL/2);
-	m_Direction = RIGHT;
+	SetDirection(RIGHT);
+	//m_ArrTail.removeAllObjects();
+
+	for (int i = m_ArrTail.count() - 1; i >= 0; --i)
+	{
+		SnakeTailPart *t_TailEnd = (SnakeTailPart *)m_ArrTail.objectAtIndex(i);
+		this->removeChild(t_TailEnd);
+		m_ArrTail.removeObjectAtIndex(i);
+	}
 
 	Grow();
 }
