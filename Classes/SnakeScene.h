@@ -45,6 +45,7 @@ private:
 	CCLabelTTF* m_BeginText;
 
 	Snake *m_Snake;
+	float m_SnakeFlame;
 	Frog *m_Frog;
 };
 

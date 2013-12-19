@@ -60,7 +60,7 @@ bool SnakeScene::init()
 			menu_selector(SnakeScene::GameResetCallback));
 
 		CC_BREAK_IF(!pResetItem);		
-		pResetItem->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width-20,20));
+		pResetItem->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width-30,30));
 
 		CCMenu* pMenu = CCMenu::create(pResetItem, NULL);
 		pMenu->setPosition(CCPointZero);
@@ -84,12 +84,11 @@ bool SnakeScene::init()
 		m_GameOverText->autorelease();
 		
 		//schedule(schedule_selector(SnakeScene::ScheduleTick1),0.075f);
-		schedule(schedule_selector(SnakeScene::GameCircle),0.5f);
-
 
 		m_Snake = new Snake(RIGHT,0,m_CellsVertical/2);
 		m_Snake->autorelease();
-		m_Snake->GetHead()->Animate(0.5f);
+		
+		m_Snake->GetHead()->Animate(0.5);
 		m_Snake->Grow();
 		layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_SNAKE);
 		layer->addChild(m_Snake);
@@ -100,6 +99,9 @@ bool SnakeScene::init()
 		this->SetFrogToRandomCell();
 		layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_FOOD);
 		layer->addChild(m_Frog);
+
+		m_SnakeFlame = 0.5;
+		schedule(schedule_selector(SnakeScene::GameCircle),m_SnakeFlame);
 
 		m_IsGameRunning = true;
 
@@ -126,7 +128,7 @@ void SnakeScene::GameCircle(float dt)
 			OnGameOver();
 		}
 
-		HandleNewSnakePosition();		
+		HandleNewSnakePosition();
 	}
 }
 
@@ -146,6 +148,9 @@ void SnakeScene::GameResetCallback(CCObject* pSender)
 	m_Snake->Reset(RIGHT,0,m_CellsVertical/2);
 	m_nScore = 0;
 	m_IsGameRunning = true;
+	m_ScoreText->setString("Score: 0");
+	CCLayer *layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_UI);	
+	layer->removeChild(m_GameOverText);
 }
 
 void SnakeScene::HandleNewSnakePosition()
@@ -167,6 +172,18 @@ void SnakeScene::HandleNewSnakePosition()
 		m_Snake->Grow();	
 
 		this->SetFrogToRandomCell();
+
+		int t_TailLength = m_Snake->GetTailLength();
+	
+		if (t_TailLength % 10 == 0)
+		{
+			if (m_SnakeFlame > 0.2)
+			{
+				m_SnakeFlame -= 0.1;
+				unschedule(schedule_selector(SnakeScene::GameCircle));
+				schedule(schedule_selector(SnakeScene::GameCircle),m_SnakeFlame);
+			}			
+		}
 	}
 }
 
