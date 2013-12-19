@@ -3,6 +3,7 @@
 #include "AppDelegate.h"
 #include "SnakeScene.h"
 #include "SimpleAudioEngine.h"
+#include "SmartRes.h"
 
 using namespace CocosDenshion;
 
@@ -22,6 +23,8 @@ bool AppDelegate::applicationDidFinishLaunching()
     // initialize director
     CCDirector *pDirector = CCDirector::sharedDirector();
     pDirector->setOpenGLView(CCEGLView::sharedOpenGLView());
+
+	SmartRes::sharedRes()->setVirtualScreenWidth(960);
 
     // turn on display FPS
     pDirector->setDisplayStats(true);

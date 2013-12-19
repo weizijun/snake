@@ -23,7 +23,7 @@ public:
 
 	bool Move();
 
-	void Reset();
+	void Reset(const Direction dir, int cellx, int celly);
 
 
 private:
