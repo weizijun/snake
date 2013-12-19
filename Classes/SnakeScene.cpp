@@ -1,5 +1,6 @@
 #include "SnakeScene.h"
 #include "SnakeConstants.h"
+#include "SmartRes.h"
 
 using namespace cocos2d;
 
@@ -27,6 +28,16 @@ bool SnakeScene::init()
 	bool t_Ret = false;
 	do 
 	{
+		srand(time(NULL));
+		m_nScore = 0;
+		float t_CellsHorizon = SmartRes::sharedRes()->getRight() / SnakeGolbal::CELL_WIDTH;
+		m_CellsHorizon =  t_CellsHorizon > static_cast<int>(t_CellsHorizon)+0.1 ? t_CellsHorizon + 1 : t_CellsHorizon ;
+
+		float t_CellVertical = SmartRes::sharedRes()->getTop() / SnakeGolbal::CELL_HEIGHT;
+		m_CellsVertical = t_CellVertical > static_cast<int>(t_CellVertical)+0.1 ? t_CellVertical + 1 : t_CellVertical ;
+
+
+
 		for (int i = 0; i < SnakeGolbal::LAYER_COUNT; ++i)
 		{
 			this->addChild(CCLayer::create());
@@ -75,10 +86,8 @@ bool SnakeScene::init()
 		//schedule(schedule_selector(SnakeScene::ScheduleTick1),0.075f);
 		schedule(schedule_selector(SnakeScene::GameCircle),0.5f);
 
-		srand(time(NULL));
-		m_nScore = 0;
 
-		m_Snake = new Snake(RIGHT,0,SnakeGolbal::CELLS_VERTICAL/2);
+		m_Snake = new Snake(RIGHT,0,m_CellsVertical/2);
 		m_Snake->autorelease();
 		m_Snake->GetHead()->Animate(0.5f);
 		m_Snake->Grow();
@@ -102,8 +111,8 @@ bool SnakeScene::init()
 
 void SnakeScene::SetFrogToRandomCell()
 {
-	int t_RandCellX = 1 + CCRANDOM_0_1() * (SnakeGolbal::CELLS_HORIZON-2-1);
-	int t_RandCellY = 1 + CCRANDOM_0_1() * (SnakeGolbal::CELLS_VERTICAL-2-1);
+	int t_RandCellX = 1 + CCRANDOM_0_1() * (m_CellsHorizon-2-1);
+	int t_RandCellY = 1 + CCRANDOM_0_1() * (m_CellsVertical-2-1);
 	m_Frog->SetCell(t_RandCellX,t_RandCellY);
 }
 
@@ -134,7 +143,7 @@ void SnakeScene::OnGameOver()
 
 void SnakeScene::GameResetCallback(CCObject* pSender)
 {
-	m_Snake->Reset();
+	m_Snake->Reset(RIGHT,0,m_CellsVertical/2);
 	m_nScore = 0;
 	m_IsGameRunning = true;
 }
@@ -142,8 +151,8 @@ void SnakeScene::GameResetCallback(CCObject* pSender)
 void SnakeScene::HandleNewSnakePosition()
 {
 	const SnakeHead *t_SnakeHead = m_Snake->GetHead();
-	if (t_SnakeHead->GetCellX() <= 0 || t_SnakeHead->GetCellX() >= SnakeGolbal::CELLS_HORIZON
-		|| t_SnakeHead->GetCellY() <= 0 || t_SnakeHead->GetCellY() >= SnakeGolbal::CELLS_VERTICAL)
+	if (t_SnakeHead->GetCellX() <= 0 || t_SnakeHead->GetCellX() >= m_CellsHorizon
+		|| t_SnakeHead->GetCellY() <= 0 || t_SnakeHead->GetCellY() >= m_CellsVertical)
 	{
 		CCLOG("x:%d,y:%d",t_SnakeHead->GetCellX(),t_SnakeHead->GetCellY());
 		OnGameOver();

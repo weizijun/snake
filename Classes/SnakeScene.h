@@ -34,6 +34,9 @@ private:
 
 
 private:
+	int m_CellsHorizon;
+	int m_CellsVertical;
+
 	int m_nScore;
 	bool m_IsGameRunning;
 

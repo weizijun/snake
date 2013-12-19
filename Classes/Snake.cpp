@@ -71,10 +71,10 @@ bool Snake::Move()
 	return true;
 }
 
-void Snake::Reset()
+void Snake::Reset(const Direction dir, int cellx, int celly)
 {
-	m_SnakeHead->SetCell(0,SnakeGolbal::CELLS_VERTICAL/2);
-	SetDirection(RIGHT);
+	m_SnakeHead->SetCell(cellx,celly);
+	SetDirection(dir);
 	//m_ArrTail.removeAllObjects();
 
 	for (int i = m_ArrTail.count() - 1; i >= 0; --i)
