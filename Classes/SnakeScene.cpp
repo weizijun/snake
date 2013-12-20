@@ -30,13 +30,16 @@ bool SnakeScene::init()
 	{
 		srand(time(NULL));
 		m_nScore = 0;
-		float t_CellsHorizon = SmartRes::sharedRes()->getRight() / SnakeGolbal::CELL_WIDTH;
-		m_CellsHorizon =  t_CellsHorizon > static_cast<int>(t_CellsHorizon)+0.1 ? t_CellsHorizon + 1 : t_CellsHorizon ;
+		//int t_WidthCells = static_cast<int>(SmartRes::sharedRes()->getRight() / SnakeGolbal::CELL_WIDTH);
+		m_CellsWidthBegin = SnakeGolbal::CELLS_WITDH_BEGIN;
+		m_CellsWidthEnd = SnakeGolbal::CELLS_WITDH_END;
 
-		float t_CellVertical = SmartRes::sharedRes()->getTop() / SnakeGolbal::CELL_HEIGHT;
-		m_CellsVertical = t_CellVertical > static_cast<int>(t_CellVertical)+0.1 ? t_CellVertical + 1 : t_CellVertical ;
+		int t_HeightCells = static_cast<int>(SmartRes::sharedRes()->getTop() / SnakeGolbal::CELL_WIDTH);
+		m_CellsHeightBegin = 0;
+		m_CellsHeightEnd = 550;
 
-
+		m_CellsHorizon = SnakeGolbal::BACKGROUND_WITDH / SnakeGolbal::CELL_WIDTH;
+		m_CellsVertical = (m_CellsHeightEnd - m_CellsHeightBegin) / SnakeGolbal::CELL_HEIGHT;
 
 		for (int i = 0; i < SnakeGolbal::LAYER_COUNT; ++i)
 		{
@@ -44,13 +47,20 @@ bool SnakeScene::init()
 		}
 
 		CCLayer* layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_BACKGROUND);
-		CCSprite* pSprite = CCSprite::create(SnakeGolbal::BACKGROUND_IMAGE);
 		layer->setTouchEnabled(true);
-		CC_BREAK_IF(!pSprite);
 
+		CCSprite* pSprite = CCSprite::create(SnakeGolbal::BACKGROUND_IMAGE);
+		CC_BREAK_IF(!pSprite);
 		CCSize size = CCDirector::sharedDirector()->getWinSize();
 		pSprite->setPosition(ccp(size.width/2,size.height/2));
 		layer->addChild(pSprite);
+
+		CCSprite* t_BackgroupLineSprite = CCSprite::create(SnakeGolbal::BACKGROUND_LINE_IMAGE);
+		CC_BREAK_IF(!t_BackgroupLineSprite);
+		float scalY=size.height/t_BackgroupLineSprite->getContentSize().height;//设置y轴方向的缩放系数
+		t_BackgroupLineSprite->setScaleY(scalY);
+		t_BackgroupLineSprite->setPosition(ccp(size.width/2,size.height/2));
+		layer->addChild(t_BackgroupLineSprite);
 
 		layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_UI);
 		CCMenuItemImage *pResetItem = CCMenuItemImage::create(
@@ -151,6 +161,7 @@ void SnakeScene::GameResetCallback(CCObject* pSender)
 	m_ScoreText->setString("Score: 0");
 	CCLayer *layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_UI);	
 	layer->removeChild(m_GameOverText);
+	m_SnakeFlame = 0.5;
 }
 
 void SnakeScene::HandleNewSnakePosition()
@@ -206,31 +217,69 @@ void SnakeScene::ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent)
 	
 	CCLOG("start x:%f,y%f",t_BeginPos.x,t_BeginPos.y);
 	CCLOG("end x:%f,y%f",t_EndPos.x,t_EndPos.y);
-
-	switch(m_Snake->GetDirection())
+	Direction t_Direction = m_Snake->GetDirection();
+	float t_XLen;
+	float t_YLen;
+	float t_TanDirection;
+	switch(t_Direction)
 	{
 	case UP:
 	case DOWN:
-		if (t_EndPos.x > t_BeginPos.x)
+		t_XLen = t_EndPos.x - t_BeginPos.x;
+		t_YLen = t_EndPos.y - t_BeginPos.y;
+
+		if (abs(t_XLen) < SnakeGolbal::LEAST_MOVE && abs(t_YLen) < SnakeGolbal::LEAST_MOVE)
 		{
-			m_Snake->SetDirection(RIGHT);
+			break;
 		}
-		else
+
+		t_TanDirection = t_XLen/t_YLen;
+
+		if (t_TanDirection >= SnakeGolbal::LEAST_TAN_DIRECTION || t_TanDirection <= -SnakeGolbal::LEAST_TAN_DIRECTION)
 		{
-			m_Snake->SetDirection(LEFT);
+			if (t_XLen > 0)
+			{
+				m_Snake->SetDirection(RIGHT);
+			}
+			else
+			{
+				m_Snake->SetDirection(LEFT);
+			}
+		}
+		else if ((t_XLen > 0 && t_Direction == UP) || (t_XLen < 0 && t_Direction == DOWN))
+		{
+			float t_Rand = 0.1;
+			GameCircle(t_Rand);		
 		}
 		break;
 	case LEFT:
 	case RIGHT:
-		if (t_EndPos.y > t_BeginPos.y)
+		t_XLen = t_EndPos.x - t_BeginPos.x;
+		t_YLen = t_EndPos.y - t_BeginPos.y;
+		
+		if (abs(t_XLen) < 1 && abs(t_YLen) < 1)
 		{
-			m_Snake->SetDirection(UP);
+			break;
 		}
-		else
+
+		t_TanDirection = t_YLen/t_XLen;
+
+		if (t_TanDirection >= SnakeGolbal::LEAST_TAN_DIRECTION || t_TanDirection <= -SnakeGolbal::LEAST_TAN_DIRECTION)
 		{
-			m_Snake->SetDirection(DOWN);
+			if (t_YLen > 0)
+			{
+				m_Snake->SetDirection(UP);
+			}
+			else
+			{
+				m_Snake->SetDirection(DOWN);
+			}
 		}
-		break;
+		else if ((t_XLen > 0 && t_Direction == RIGHT) || (t_XLen < 0 && t_Direction == LEFT))
+		{
+			float t_Rand = 0.1;
+			GameCircle(t_Rand);		
+		}
 	}
 
 }

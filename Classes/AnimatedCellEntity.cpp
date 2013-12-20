@@ -41,30 +41,30 @@ void AnimatedCellEntity::Animate(const float interval)
 	this->runAction(m_Ani);
 }
 
-const int AnimatedCellEntity::GetCellX() const
-{
-	return m_CellX;
-}
-
-const int AnimatedCellEntity::GetCellY() const
-{
-	return m_CellY;
-}
-
-void AnimatedCellEntity::SetCell(const ICellEntity& cell)
-{
-	this->SetCell(cell.GetCellX(),cell.GetCellY());
-}
-
-void AnimatedCellEntity::SetCell(const int cellX,const int cellY)
-{
-	m_CellX = cellX;
-	m_CellY = cellY;
-
-	this->setPosition(ccp(m_CellX*SnakeGolbal::CELL_WIDTH+16,m_CellY*SnakeGolbal::CELL_HEIGHT+16));
-}
-
-bool AnimatedCellEntity::IsInSameCell(const ICellEntity& cell) const
-{
-	return m_CellX == cell.GetCellX() && m_CellY == cell.GetCellY();
-}
+//const int AnimatedCellEntity::GetCellX() const
+//{
+//	return m_CellX;
+//}
+//
+//const int AnimatedCellEntity::GetCellY() const
+//{
+//	return m_CellY;
+//}
+//
+//void AnimatedCellEntity::SetCell(const ICellEntity& cell)
+//{
+//	this->SetCell(cell.GetCellX(),cell.GetCellY());
+//}
+//
+//void AnimatedCellEntity::SetCell(const int cellX,const int cellY)
+//{
+//	m_CellX = cellX;
+//	m_CellY = cellY;
+//
+//	this->setPosition(ccp(m_CellX*SnakeGolbal::CELL_WIDTH+16,m_CellY*SnakeGolbal::CELL_HEIGHT+16));
+//}
+//
+//bool AnimatedCellEntity::IsInSameCell(const ICellEntity& cell) const
+//{
+//	return m_CellX == cell.GetCellX() && m_CellY == cell.GetCellY();
+//}

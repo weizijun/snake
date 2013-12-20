@@ -36,6 +36,10 @@ private:
 private:
 	int m_CellsHorizon;
 	int m_CellsVertical;
+	int m_CellsWidthBegin;
+	int m_CellsWidthEnd;
+	int m_CellsHeightBegin;
+	int m_CellsHeightEnd;
 
 	int m_nScore;
 	bool m_IsGameRunning;

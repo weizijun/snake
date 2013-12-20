@@ -21,21 +21,25 @@ namespace SnakeGolbal
 	static const int GAMEOVER_SIZE = 30;
 
 	static const char *BACKGROUND_IMAGE = "background.png";
-
+	static const char *BACKGROUND_LINE_IMAGE = "background_line.png";
 	static const char *SNAKE_BODY_IMAGE = "snake_tailpart.png";
 	static const char *SNAKE_HEAD_IMAGE = "snake_head.png";
-
 	static const char *FROG_IMAGE = "frog.png";
-
 	static const char *RESET_IMAGE = "redo-round.png";
-
+	static const char *PAUSE_ITEM_IMAGE = "pause_item.png";
+	static const char *PAUSE_MENU_IMAGE = "pause_menu.png";
 
 	static const int CELLS_HORIZON = 19;
 	static const int CELLS_VERTICAL = 11;
 	static const int CELL_WIDTH = 32;
 	static const int CELL_HEIGHT = CELL_WIDTH;
-	static const int CAMERA_WIDTH = CELLS_HORIZON * CELL_WIDTH; 
-	static const int CAMERA_HEIGHT = CELLS_VERTICAL * CELL_HEIGHT;
+	static const int CELLS_WITDH_BEGIN = 11;
+	static const int CELLS_WITDH_END = 971;
+	static const int BACKGROUND_WITDH = 960;
+
+
+	static const float LEAST_MOVE = 1;
+	static const float LEAST_TAN_DIRECTION = 0.1;
 }
 
 #endif

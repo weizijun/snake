@@ -18,9 +18,6 @@
     <ClCompile Include="..\Classes\AnimatedCellEntity.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\CellEntity.cpp">
-      <Filter>Classes</Filter>
-    </ClCompile>
     <ClCompile Include="..\Classes\Frog.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
@@ -48,9 +45,6 @@
       <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\AnimatedCellEntity.h">
-      <Filter>Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\CellEntity.h">
       <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\Direction.h">

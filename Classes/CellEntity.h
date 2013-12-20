@@ -5,23 +5,23 @@
 
 USING_NS_CC;
 
-class CellEntity : public ICellEntity,public CCSprite
+class CellEntity : public ICellEntity
 {
 public:
 	CellEntity(int cellX,int cellY,const char* fileName);
 	virtual ~CellEntity();
 
-	virtual const int GetCellX() const;
-	virtual const int GetCellY() const;
+	//virtual const int GetCellX() const;
+	//virtual const int GetCellY() const;
 
-	virtual void SetCell(const ICellEntity& cell);
-	virtual void SetCell(const int cellX,const int cellY);
+	//virtual void SetCell(const ICellEntity& cell);
+	//virtual void SetCell(const int cellX,const int cellY);
 
-	virtual bool IsInSameCell(const ICellEntity& cell) const;
+	//virtual bool IsInSameCell(const ICellEntity& cell) const;
 
 protected:
-	int m_CellX;
-	int m_CellY;
+	//int m_CellX;
+	//int m_CellY;
 };
 
 #endif
