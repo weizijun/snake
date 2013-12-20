@@ -126,6 +126,7 @@ bool SnakeScene::init()
 
 		m_IsMenuShow = false;
 		m_IsGameRunning = true;
+		clicked = false; 
 
 
 		t_Ret = true;
@@ -225,8 +226,7 @@ void SnakeScene::GameResetCallback(CCObject* pSender)
 	layer->removeChild(m_PauseBackGround);
 	m_IsMenuShow = false;
 }
-
-void SnakeScene::GamePauseCallback(CCObject* pSender)
+void SnakeScene::_GamePause()
 {
 	if (m_IsMenuShow == false)
 	{
@@ -272,13 +272,16 @@ void SnakeScene::GamePauseCallback(CCObject* pSender)
 	}
 	else
 	{
-		GameContinueCallback(pSender);		
+		_GameContinue();	
 	}
-
-
 }
 
-void SnakeScene::GameContinueCallback(CCObject* pSender)
+void SnakeScene::GamePauseCallback(CCObject* pSender)
+{
+	_GamePause();
+}
+
+void SnakeScene::_GameContinue()
 {
 	do 
 	{
@@ -290,7 +293,11 @@ void SnakeScene::GameContinueCallback(CCObject* pSender)
 		layer->removeChild(m_PauseBackGround);
 		m_IsMenuShow = false;
 	} while (false);
+}
 
+void SnakeScene::GameContinueCallback(CCObject* pSender)
+{
+	_GameContinue();
 }
 
 void SnakeScene::HandleNewSnakePosition()
@@ -324,8 +331,30 @@ void SnakeScene::HandleNewSnakePosition()
 
 bool SnakeScene::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 {
+	if (clicked) {  
+		clicked = false;  
+		CCLog("double click");  
+		_GamePause();
+	}  
+	else  
+	{  
+		//延时0.25s执行（注意在这0.25s的延时过程中clicked已经为true），  
+		//如果在这个过程中再次click，那么就执行上面的双击事件处理了  
+		//否则，那么就执行下面的回调函数了，处理单击事件  
+		scheduleOnce(schedule_selector(SnakeScene::ff), 0.25f);  
+		clicked = true;  
+	}  
+
 	return true;
 }
+
+void SnakeScene::ff(float tt)  
+{  
+	if (clicked) {  
+		clicked = false;  
+		CCLog("single click");  
+	}  
+} 
 
 void SnakeScene::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent)
 {

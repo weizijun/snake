@@ -29,11 +29,14 @@ public:
 	void ccTouchEnded(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent);
 	void ccTouchCancelled(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent);
 	void registerWithTouchDispatcher();
+	void ff(float tt);
 private:
 	void SetFrogToRandomCell();
 
 	void OnGameOver();
 	void HandleNewSnakePosition();
+	void _GamePause();
+	void _GameContinue();
 
 
 private:
@@ -43,6 +46,7 @@ private:
 	//int m_CellsWidthEnd;
 	//int m_CellsHeightBegin;
 	//int m_CellsHeightEnd;
+	bool clicked; 
 
 	int m_nScore;
 	bool m_IsGameRunning;
