@@ -1,6 +1,7 @@
 #include "SnakeScene.h"
 #include "SnakeConstants.h"
 #include "SmartRes.h"
+#include "CCScheduler.h"
 
 using namespace cocos2d;
 
@@ -31,15 +32,18 @@ bool SnakeScene::init()
 		srand(time(NULL));
 		m_nScore = 0;
 		//int t_WidthCells = static_cast<int>(SmartRes::sharedRes()->getRight() / SnakeGolbal::CELL_WIDTH);
-		m_CellsWidthBegin = SnakeGolbal::CELLS_WITDH_BEGIN;
-		m_CellsWidthEnd = SnakeGolbal::CELLS_WITDH_END;
+		SnakeGolbal::g_CellsWidthBegin = SnakeGolbal::CELLS_WIDTH_BEGIN;
+		SnakeGolbal::g_CellsWidthEnd = SnakeGolbal::CELLS_WIDTH_END;
 
 		int t_HeightCells = static_cast<int>(SmartRes::sharedRes()->getTop() / SnakeGolbal::CELL_WIDTH);
-		m_CellsHeightBegin = 0;
-		m_CellsHeightEnd = 550;
 
-		m_CellsHorizon = SnakeGolbal::BACKGROUND_WITDH / SnakeGolbal::CELL_WIDTH;
-		m_CellsVertical = (m_CellsHeightEnd - m_CellsHeightBegin) / SnakeGolbal::CELL_HEIGHT;
+		float t_HeightScale =  SmartRes::sharedRes()->getTop() / SnakeGolbal::CELLS_ORIGIN_HEIGTH_END;
+		SnakeGolbal::g_CellsHeightBegin = static_cast<int>(t_HeightScale * SnakeGolbal::CELLS_ORIGIN_HEIGTH_BEGIN);
+		SnakeGolbal::g_CellsHeightEnd = static_cast<int>(SnakeGolbal::BACKGROUND_ORIGIN_HEIGTH + SnakeGolbal::g_CellsHeightBegin);
+		//SnakeGolbal::g_CellsHeightEnd = SnakeGolbal::g_CellsHeightEnd - SnakeGolbal::g_CellsHeightEnd % SnakeGolbal::g_CellsHeightBegin;
+
+		SnakeGolbal::g_CellsHorizon = SnakeGolbal::BACKGROUND_WIDTH / SnakeGolbal::CELL_WIDTH - 1;
+		SnakeGolbal::g_CellsVertical = (SnakeGolbal::g_CellsHeightEnd - SnakeGolbal::g_CellsHeightBegin) / SnakeGolbal::CELL_HEIGHT;
 
 		for (int i = 0; i < SnakeGolbal::LAYER_COUNT; ++i)
 		{
@@ -63,16 +67,24 @@ bool SnakeScene::init()
 		layer->addChild(t_BackgroupLineSprite);
 
 		layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_UI);
-		CCMenuItemImage *pResetItem = CCMenuItemImage::create(
-			SnakeGolbal::RESET_IMAGE,
-			SnakeGolbal::RESET_IMAGE,
+		//CCMenuItemImage *pResetItem = CCMenuItemImage::create(
+		//	SnakeGolbal::RESET_IMAGE,
+		//	SnakeGolbal::RESET_IMAGE,
+		//	this,
+		//	menu_selector(SnakeScene::GameResetCallback));
+
+		//CC_BREAK_IF(!pResetItem);		
+		//pResetItem->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width-30,30));
+
+		CCMenuItemImage *t_PauseItem = CCMenuItemImage::create(
+			SnakeGolbal::PAUSE_ITEM_IMAGE,
+			SnakeGolbal::PAUSE_ITEM_IMAGE,
 			this,
-			menu_selector(SnakeScene::GameResetCallback));
+			menu_selector(SnakeScene::GamePauseCallback));
+		CC_BREAK_IF(!t_PauseItem);
+		t_PauseItem->setPosition(CCDirector::sharedDirector()->getWinSize().width-30,CCDirector::sharedDirector()->getWinSize().height-30);
 
-		CC_BREAK_IF(!pResetItem);		
-		pResetItem->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width-30,30));
-
-		CCMenu* pMenu = CCMenu::create(pResetItem, NULL);
+		CCMenu* pMenu = CCMenu::create(t_PauseItem, NULL);
 		pMenu->setPosition(CCPointZero);
 		CC_BREAK_IF(! pMenu);
 		layer->addChild(pMenu);
@@ -95,9 +107,8 @@ bool SnakeScene::init()
 		
 		//schedule(schedule_selector(SnakeScene::ScheduleTick1),0.075f);
 
-		m_Snake = new Snake(RIGHT,0,m_CellsVertical/2);
-		m_Snake->autorelease();
-		
+		m_Snake = new Snake(0,SnakeGolbal::g_CellsVertical/2);
+		m_Snake->autorelease();		
 		m_Snake->GetHead()->Animate(0.5);
 		m_Snake->Grow();
 		layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_SNAKE);
@@ -113,6 +124,7 @@ bool SnakeScene::init()
 		m_SnakeFlame = 0.5;
 		schedule(schedule_selector(SnakeScene::GameCircle),m_SnakeFlame);
 
+		m_IsMenuShow = false;
 		m_IsGameRunning = true;
 
 
@@ -123,8 +135,8 @@ bool SnakeScene::init()
 
 void SnakeScene::SetFrogToRandomCell()
 {
-	int t_RandCellX = 1 + CCRANDOM_0_1() * (m_CellsHorizon-2-1);
-	int t_RandCellY = 1 + CCRANDOM_0_1() * (m_CellsVertical-2-1);
+	int t_RandCellX = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsHorizon-2);
+	int t_RandCellY = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsVertical-2);
 	m_Frog->SetCell(t_RandCellX,t_RandCellY);
 }
 
@@ -133,11 +145,54 @@ void SnakeScene::GameCircle(float dt)
 	//CCLOG("circle:%f,time:%d",dt,time(NULL));
 	if (m_IsGameRunning)
 	{
+		//判断前移是不是会碰壁
+		const SnakeHead *t_SnakeHead = m_Snake->GetHead();
+		const Direction t_Direction = m_Snake->GetDirection();
+		bool t_GameOverFlag = false;
+		switch(t_Direction)
+		{
+		case UP:
+			if (t_SnakeHead->GetCellY() >= SnakeGolbal::g_CellsVertical)
+			{
+				t_GameOverFlag = true;
+			}
+			break;
+		case DOWN:
+			if (t_SnakeHead->GetCellY() <= 0)
+			{
+				t_GameOverFlag = true;
+			}
+			break;
+		case LEFT:
+			if (t_SnakeHead->GetCellX() <= 0)
+			{
+				t_GameOverFlag = true;
+			}
+			break;
+		case RIGHT:
+			if (t_SnakeHead->GetCellX() >= SnakeGolbal::g_CellsHorizon)			
+			{
+				t_GameOverFlag = true;
+			}
+			break;
+		}
+
+		if (t_GameOverFlag == true)
+		{			
+			OnGameOver();
+			return;
+		}
+
+		CCLOG("x:%d,y:%d",t_SnakeHead->GetCellX(),t_SnakeHead->GetCellY());
+
+		//往前移动一个
 		if (!m_Snake->Move())
 		{
 			OnGameOver();
+			return;
 		}
 
+		//判断是否吃到东西
 		HandleNewSnakePosition();
 	}
 }
@@ -155,25 +210,93 @@ void SnakeScene::OnGameOver()
 
 void SnakeScene::GameResetCallback(CCObject* pSender)
 {
-	m_Snake->Reset(RIGHT,0,m_CellsVertical/2);
+	m_Snake->Reset(0,SnakeGolbal::g_CellsVertical/2);
 	m_nScore = 0;
 	m_IsGameRunning = true;
 	m_ScoreText->setString("Score: 0");
 	CCLayer *layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_UI);	
 	layer->removeChild(m_GameOverText);
 	m_SnakeFlame = 0.5;
+
+	CCDirector::sharedDirector()->getScheduler()->resumeTargets(m_PauseAllTargets);
+	CC_SAFE_RELEASE_NULL(m_PauseAllTargets);
+
+	layer->removeChild(m_PauseMenu);
+	layer->removeChild(m_PauseBackGround);
+	m_IsMenuShow = false;
+}
+
+void SnakeScene::GamePauseCallback(CCObject* pSender)
+{
+	if (m_IsMenuShow == false)
+	{
+		m_PauseAllTargets = CCDirector::sharedDirector()->getScheduler()->pauseAllTargets();
+		CC_SAFE_RETAIN(m_PauseAllTargets);
+
+		CCSize size = CCDirector::sharedDirector()->getWinSize();
+		CCLayer *layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_UI);	
+
+		do 
+		{
+			m_PauseBackGround = CCSprite::create(SnakeGolbal::PAUSE_MENU_IMAGE);
+			CC_BREAK_IF(!m_PauseBackGround);
+			m_PauseBackGround->setPosition(ccp(size.width/2,size.height/2));
+			layer->addChild(m_PauseBackGround);
+
+			CCMenuItemImage *t_MenuItemContinue = CCMenuItemImage::create(
+				SnakeGolbal::IN_MENU_CONTINUE_IMAGE,
+				SnakeGolbal::IN_MENU_CONTINUE_IMAGE,
+				this,
+				menu_selector(SnakeScene::GameContinueCallback));
+			CC_BREAK_IF(!t_MenuItemContinue);
+			t_MenuItemContinue->setPosition(ccp(10,10));
+
+			CCMenuItemImage *t_MenuItemReset = CCMenuItemImage::create(
+				SnakeGolbal::IN_MENU_RESET_IMAGE,
+				SnakeGolbal::IN_MENU_RESET_IMAGE,
+				this,
+				menu_selector(SnakeScene::GameResetCallback));
+			CC_BREAK_IF(!t_MenuItemReset);
+			t_MenuItemReset->setPosition(ccp(20,20));
+
+
+
+			m_PauseMenu = CCMenu::create(t_MenuItemContinue,t_MenuItemReset,NULL);
+			CC_BREAK_IF(!m_PauseMenu);
+			m_PauseMenu->setPosition(ccp(size.width/2,size.height/2));
+			m_PauseMenu->alignItemsVertically();
+			layer->addChild(m_PauseMenu);
+
+			m_IsMenuShow = true;
+		} while (false);
+	}
+	else
+	{
+		GameContinueCallback(pSender);		
+	}
+
+
+}
+
+void SnakeScene::GameContinueCallback(CCObject* pSender)
+{
+	do 
+	{
+		CCDirector::sharedDirector()->getScheduler()->resumeTargets(m_PauseAllTargets);
+		CC_SAFE_RELEASE_NULL(m_PauseAllTargets);
+
+		CCLayer *layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_UI);	
+		layer->removeChild(m_PauseMenu);
+		layer->removeChild(m_PauseBackGround);
+		m_IsMenuShow = false;
+	} while (false);
+
 }
 
 void SnakeScene::HandleNewSnakePosition()
 {
 	const SnakeHead *t_SnakeHead = m_Snake->GetHead();
-	if (t_SnakeHead->GetCellX() <= 0 || t_SnakeHead->GetCellX() >= m_CellsHorizon
-		|| t_SnakeHead->GetCellY() <= 0 || t_SnakeHead->GetCellY() >= m_CellsVertical)
-	{
-		CCLOG("x:%d,y:%d",t_SnakeHead->GetCellX(),t_SnakeHead->GetCellY());
-		OnGameOver();
-	}
-	else if(t_SnakeHead->IsInSameCell(*m_Frog))
+	if(t_SnakeHead->IsInSameCell(*m_Frog))
 	{
 		m_nScore += 50;
 		char score[128] = {0};

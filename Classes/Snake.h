@@ -9,10 +9,11 @@ class Snake : public CCNode
 {
 public:
 	~Snake();
-	Snake(const Direction dir, int cellx, int celly);
+	Snake(int cellx, int celly);
 
 	const Direction GetDirection() const { return m_Direction; }
 	void SetDirection(const Direction direction);
+	void InitDirection();
 
 	SnakeHead *GetHead() { return m_SnakeHead; } 
 	int GetTailLength() { return m_ArrTail.count(); }
@@ -23,7 +24,7 @@ public:
 
 	bool Move();
 
-	void Reset(const Direction dir, int cellx, int celly);
+	void Reset(int cellx, int celly);
 
 
 private:

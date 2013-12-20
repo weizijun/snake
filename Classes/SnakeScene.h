@@ -18,6 +18,9 @@ public:
 
 	void GameCircle(float dt);
 	void GameResetCallback(CCObject* pSender);
+	void GamePauseCallback(CCObject* pSender);
+	void GameContinueCallback(CCObject* pSender);
+
 
 	CREATE_FUNC(SnakeScene);
 
@@ -34,19 +37,23 @@ private:
 
 
 private:
-	int m_CellsHorizon;
-	int m_CellsVertical;
-	int m_CellsWidthBegin;
-	int m_CellsWidthEnd;
-	int m_CellsHeightBegin;
-	int m_CellsHeightEnd;
+	//int m_CellsHorizon;
+	//int m_CellsVertical;
+	//int m_CellsWidthBegin;
+	//int m_CellsWidthEnd;
+	//int m_CellsHeightBegin;
+	//int m_CellsHeightEnd;
 
 	int m_nScore;
 	bool m_IsGameRunning;
+	CCSet *m_PauseAllTargets;
 
 	CCLabelTTF* m_ScoreText;
 	CCLabelTTF* m_GameOverText;
 	CCLabelTTF* m_BeginText;
+	bool m_IsMenuShow;
+	CCMenu *m_PauseMenu;
+	CCSprite* m_PauseBackGround;
 
 	Snake *m_Snake;
 	float m_SnakeFlame;

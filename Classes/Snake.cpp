@@ -3,13 +3,13 @@
 #include "Snake.h"
 #include "SnakeTailPart.h"
 
-Snake::Snake(const Direction dir, int cellx, int celly)
+Snake::Snake( int cellx, int celly)
 {
 	m_SnakeHead = new SnakeHead(cellx,celly);
 	m_SnakeHead->autorelease();
-
+	InitDirection();
 	this->addChild(m_SnakeHead);
-	this->SetDirection(dir);
+	
 }
 
 void Snake::SetDirection(const Direction direction)
@@ -19,6 +19,15 @@ void Snake::SetDirection(const Direction direction)
 		m_Direction = direction;
 		m_SnakeHead->SetRotation(direction);
 	}
+
+	//m_Direction = direction;
+	//m_SnakeHead->SetRotation(direction);
+}
+
+void Snake::InitDirection()
+{
+	m_Direction = RIGHT;
+	m_SnakeHead->SetRotation(m_Direction);
 }
 
 Snake::~Snake()
@@ -71,10 +80,11 @@ bool Snake::Move()
 	return true;
 }
 
-void Snake::Reset(const Direction dir, int cellx, int celly)
+void Snake::Reset(int cellx, int celly)
 {
+	InitDirection();
+
 	m_SnakeHead->SetCell(cellx,celly);
-	SetDirection(dir);
 	//m_ArrTail.removeAllObjects();
 
 	for (int i = m_ArrTail.count() - 1; i >= 0; --i)
