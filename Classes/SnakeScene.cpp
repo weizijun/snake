@@ -138,6 +138,38 @@ void SnakeScene::SetFrogToRandomCell()
 {
 	int t_RandCellX = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsHorizon-2);
 	int t_RandCellY = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsVertical-2);
+    
+    
+    while (t_RandCellX == m_Snake->GetHead()->GetCellX() && t_RandCellY == m_Snake->GetHead()->GetCellY())
+    {
+        t_RandCellX = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsHorizon-2);
+        t_RandCellY = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsVertical-2);
+        
+    }
+    
+    CCArray t_TailArr = m_Snake->GetTailArr();
+    
+    
+    bool t_TailFlag = false;
+    for(int i=0; i < t_TailArr.count(); ++i)
+    {
+        if (t_TailArr.objectAtIndex(i).GetCellX() == t_RandCellX && t_TailArr.objectAtIndex(1).GetCellY() == t_RandCellY)
+        {
+            t_TailFlag = true;
+            break;
+        }
+    }
+    
+    if (t_TailFlag == true)
+    {
+        t_RandCellX = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsHorizon-2);
+        t_RandCellY = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsVertical-2);
+    }
+    
+    
+    
+    
+    
 	m_Frog->SetCell(t_RandCellX,t_RandCellY);
 }
 
@@ -218,7 +250,9 @@ void SnakeScene::GameResetCallback(CCObject* pSender)
 	CCLayer *layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_UI);	
 	layer->removeChild(m_GameOverText);
 	m_SnakeFlame = 0.5;
-
+    unschedule(schedule_selector(SnakeScene::GameCircle));
+    schedule(schedule_selector(SnakeScene::GameCircle),m_SnakeFlame);
+    
 	CCDirector::sharedDirector()->getScheduler()->resumeTargets(m_PauseAllTargets);
 	CC_SAFE_RELEASE_NULL(m_PauseAllTargets);
 
@@ -364,76 +398,78 @@ void SnakeScene::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent)
 void SnakeScene::ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent)
 {
 	CCLOG("ccTouchEnded");
-	CCPoint t_BeginPos = pTouch->getStartLocation();
-	CCPoint t_EndPos = pTouch->getLocation();
-	
-	CCLOG("start x:%f,y%f",t_BeginPos.x,t_BeginPos.y);
-	CCLOG("end x:%f,y%f",t_EndPos.x,t_EndPos.y);
-	Direction t_Direction = m_Snake->GetDirection();
-	float t_XLen;
-	float t_YLen;
-	float t_TanDirection;
-	switch(t_Direction)
-	{
-	case UP:
-	case DOWN:
-		t_XLen = t_EndPos.x - t_BeginPos.x;
-		t_YLen = t_EndPos.y - t_BeginPos.y;
-
-		if (abs(t_XLen) < SnakeGolbal::LEAST_MOVE && abs(t_YLen) < SnakeGolbal::LEAST_MOVE)
-		{
-			break;
-		}
-
-		t_TanDirection = t_XLen/t_YLen;
-
-		if (t_TanDirection >= SnakeGolbal::LEAST_TAN_DIRECTION || t_TanDirection <= -SnakeGolbal::LEAST_TAN_DIRECTION)
-		{
-			if (t_XLen > 0)
-			{
-				m_Snake->SetDirection(RIGHT);
-			}
-			else
-			{
-				m_Snake->SetDirection(LEFT);
-			}
-		}
-		else if ((t_XLen > 0 && t_Direction == UP) || (t_XLen < 0 && t_Direction == DOWN))
-		{
-			float t_Rand = 0.1;
-			GameCircle(t_Rand);		
-		}
-		break;
-	case LEFT:
-	case RIGHT:
-		t_XLen = t_EndPos.x - t_BeginPos.x;
-		t_YLen = t_EndPos.y - t_BeginPos.y;
-		
-		if (abs(t_XLen) < 1 && abs(t_YLen) < 1)
-		{
-			break;
-		}
-
-		t_TanDirection = t_YLen/t_XLen;
-
-		if (t_TanDirection >= SnakeGolbal::LEAST_TAN_DIRECTION || t_TanDirection <= -SnakeGolbal::LEAST_TAN_DIRECTION)
-		{
-			if (t_YLen > 0)
-			{
-				m_Snake->SetDirection(UP);
-			}
-			else
-			{
-				m_Snake->SetDirection(DOWN);
-			}
-		}
-		else if ((t_XLen > 0 && t_Direction == RIGHT) || (t_XLen < 0 && t_Direction == LEFT))
-		{
-			float t_Rand = 0.1;
-			GameCircle(t_Rand);		
-		}
-	}
-
+    if (m_IsGameRunning == true)
+    {
+        CCPoint t_BeginPos = pTouch->getStartLocation();
+        CCPoint t_EndPos = pTouch->getLocation();
+        
+        CCLOG("start x:%f,y%f",t_BeginPos.x,t_BeginPos.y);
+        CCLOG("end x:%f,y%f",t_EndPos.x,t_EndPos.y);
+        Direction t_Direction = m_Snake->GetDirection();
+        float t_XLen;
+        float t_YLen;
+        float t_TanDirection;
+        switch(t_Direction)
+        {
+            case UP:
+            case DOWN:
+                t_XLen = t_EndPos.x - t_BeginPos.x;
+                t_YLen = t_EndPos.y - t_BeginPos.y;
+                
+                if (abs(t_XLen) < SnakeGolbal::LEAST_MOVE && abs(t_YLen) < SnakeGolbal::LEAST_MOVE)
+                {
+                    break;
+                }
+                
+                t_TanDirection = t_XLen/t_YLen;
+                
+                if (t_TanDirection >= SnakeGolbal::LEAST_TAN_DIRECTION || t_TanDirection <= -SnakeGolbal::LEAST_TAN_DIRECTION)
+                {
+                    if (t_XLen > 0)
+                    {
+                        m_Snake->SetDirection(RIGHT);
+                    }
+                    else
+                    {
+                        m_Snake->SetDirection(LEFT);
+                    }
+                }
+                else if ((t_XLen > 0 && t_Direction == UP) || (t_XLen < 0 && t_Direction == DOWN))
+                {
+                    float t_Rand = 0.1;
+                    GameCircle(t_Rand);
+                }
+                break;
+            case LEFT:
+            case RIGHT:
+                t_XLen = t_EndPos.x - t_BeginPos.x;
+                t_YLen = t_EndPos.y - t_BeginPos.y;
+                
+                if (abs(t_XLen) < 1 && abs(t_YLen) < 1)
+                {
+                    break;
+                }
+                
+                t_TanDirection = t_YLen/t_XLen;
+                
+                if (t_TanDirection >= SnakeGolbal::LEAST_TAN_DIRECTION || t_TanDirection <= -SnakeGolbal::LEAST_TAN_DIRECTION)
+                {
+                    if (t_YLen > 0)
+                    {
+                        m_Snake->SetDirection(UP);
+                    }
+                    else
+                    {
+                        m_Snake->SetDirection(DOWN);
+                    }
+                }
+                else if ((t_XLen > 0 && t_Direction == RIGHT) || (t_XLen < 0 && t_Direction == LEFT))
+                {
+                    float t_Rand = 0.1;
+                    GameCircle(t_Rand);		
+                }
+        }
+    }
 }
 void SnakeScene::ccTouchCancelled(CCTouch *pTouch, CCEvent *pEvent)
 {
