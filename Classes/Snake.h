@@ -16,7 +16,7 @@ public:
 	void InitDirection();
 
 	SnakeHead *GetHead() { return m_SnakeHead; }
-    CCArray GetTailArr() { return m_ArrTail; }
+    CCArray* GetTailArr() { return &m_ArrTail; }
 	int GetTailLength() { return m_ArrTail.count(); }
 	void Grow() { m_isGrow = true; }
 

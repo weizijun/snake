@@ -2,6 +2,8 @@
 #include "SnakeConstants.h"
 #include "SmartRes.h"
 #include "CCScheduler.h"
+#include "SnakeTailPart.h"
+
 
 using namespace cocos2d;
 
@@ -135,41 +137,46 @@ bool SnakeScene::init()
 }
 
 void SnakeScene::SetFrogToRandomCell()
-{
-	int t_RandCellX = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsHorizon-2);
-	int t_RandCellY = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsVertical-2);
-    
-    
-    while (t_RandCellX == m_Snake->GetHead()->GetCellX() && t_RandCellY == m_Snake->GetHead()->GetCellY())
-    {
-        t_RandCellX = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsHorizon-2);
-        t_RandCellY = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsVertical-2);
-        
-    }
-    
-    CCArray t_TailArr = m_Snake->GetTailArr();
-    
-    
-    bool t_TailFlag = false;
-    for(int i=0; i < t_TailArr.count(); ++i)
-    {
-        if (t_TailArr.objectAtIndex(i).GetCellX() == t_RandCellX && t_TailArr.objectAtIndex(1).GetCellY() == t_RandCellY)
-        {
-            t_TailFlag = true;
-            break;
-        }
-    }
-    
-    if (t_TailFlag == true)
-    {
-        t_RandCellX = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsHorizon-2);
-        t_RandCellY = 1 + CCRANDOM_0_1() * (SnakeGolbal::g_CellsVertical-2);
-    }
-    
-    
-    
-    
-    
+{    
+	std::vector<CCPoint> t_CellPointVec;
+	for (int i = 1; i<SnakeGolbal::g_CellsHorizon-1; ++i)
+	{
+		for (int j = 1; j<SnakeGolbal::g_CellsVertical-1; ++j)
+		{
+			if (i == m_Snake->GetHead()->GetCellX() && j == m_Snake->GetHead()->GetCellY())
+			{
+				continue;
+			}
+
+			CCArray *t_TailArr = m_Snake->GetTailArr();
+			bool t_TailFlag = false;
+			for(int it = t_TailArr->count() - 1; it >= 0; --it)
+			{
+				SnakeTailPart *t_TailEnd = (SnakeTailPart *)(t_TailArr->objectAtIndex(it));
+				if (t_TailEnd->GetCellX() == i && t_TailEnd->GetCellY() == j)
+				{
+					t_TailFlag = true;
+					//delete t_TailEnd;
+					break;
+				}
+				else
+				{
+					//delete t_TailEnd;
+				}
+			}
+
+			if (t_TailFlag == true)
+			{
+				continue;
+			}
+
+			t_CellPointVec.push_back(ccp(i,j));
+		}
+	}
+	int t_RandCell = CCRANDOM_0_1() * (t_CellPointVec.size()-1);
+	int t_RandCellX = t_CellPointVec[t_RandCell].x;
+	int t_RandCellY = t_CellPointVec[t_RandCell].y;
+
 	m_Frog->SetCell(t_RandCellX,t_RandCellY);
 }
 
