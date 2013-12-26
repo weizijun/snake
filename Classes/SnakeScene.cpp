@@ -33,6 +33,7 @@ bool SnakeScene::init()
 	{
 		srand(time(NULL));
 		m_nScore = 0;
+		m_HighestScore = CCUserDefault::sharedUserDefault()->getIntegerForKey("highest_score");
 		//int t_WidthCells = static_cast<int>(SmartRes::sharedRes()->getRight() / SnakeGolbal::CELL_WIDTH);
 		SnakeGolbal::g_CellsWidthBegin = SnakeGolbal::CELLS_WIDTH_BEGIN;
 		SnakeGolbal::g_CellsWidthEnd = SnakeGolbal::CELLS_WIDTH_END;
@@ -96,6 +97,13 @@ bool SnakeScene::init()
 		m_ScoreText->setAnchorPoint(ccp(0,0.5));
 		layer->addChild(m_ScoreText);
 
+		char score[128] = {0};
+		sprintf(score, "HighestScore: %d", m_HighestScore);
+		m_HighestScoreText = CCLabelTTF::create(score,SnakeGolbal::SCORE_TTF,SnakeGolbal::HIGHEST_SCORE_SIZE);
+		m_HighestScoreText->setPosition(ccp(30,size.height - 60));
+		m_HighestScoreText->setAnchorPoint(ccp(0,0.5));
+		layer->addChild(m_HighestScoreText);
+
 		m_BeginText = CCLabelTTF::create("Snake On Phone!",SnakeGolbal::BEGIN_TTF,SnakeGolbal::BEGIN_SIZE);
 		m_BeginText->setPosition(ccp(size.width/2,size.height/2));
 		layer->addChild(m_BeginText);
@@ -128,8 +136,7 @@ bool SnakeScene::init()
 
 		m_IsMenuShow = false;
 		m_IsGameRunning = true;
-		clicked = false; 
-
+		clicked = false; 		
 
 		t_Ret = true;
 	} while (false);
@@ -239,6 +246,7 @@ void SnakeScene::GameCircle(float dt)
 
 void SnakeScene::OnGameOver()
 {
+	PlayGameOverSound();
 	CCLayer *layer = (CCLayer*)this->getChildren()->objectAtIndex(SnakeGolbal::LAYER_UI);
 	layer->addChild(m_GameOverText);
 	m_GameOverText->setScale(0);
@@ -246,6 +254,9 @@ void SnakeScene::OnGameOver()
 	m_GameOverText->runAction(CCRotateBy::create(1.0,360));
 
 	m_IsGameRunning = false;
+	CCUserDefault::sharedUserDefault()->setIntegerForKey("highest_score",m_HighestScore);
+
+	_GamePause();
 }
 
 void SnakeScene::GameResetCallback(CCObject* pSender)
@@ -351,6 +362,14 @@ void SnakeScene::HandleNewSnakePosition()
 		sprintf(score, "Score: %d", m_nScore);
 		m_ScoreText->setString(score);
 
+		if (m_nScore > m_HighestScore)
+		{
+			m_HighestScore = m_nScore;
+			char highest_score[128] = {0};
+			sprintf(highest_score, "HighestScore: %d", m_HighestScore);
+			m_HighestScoreText->setString(highest_score);
+		}
+
 		m_Snake->Grow();	
 
 		this->SetFrogToRandomCell();
@@ -366,6 +385,8 @@ void SnakeScene::HandleNewSnakePosition()
 				schedule(schedule_selector(SnakeScene::GameCircle),m_SnakeFlame);
 			}			
 		}
+
+		PlayMunchSound();
 	}
 }
 
@@ -487,4 +508,14 @@ void SnakeScene::registerWithTouchDispatcher()
 {
 	CCDirector* pDirector = CCDirector::sharedDirector();
 	pDirector->getTouchDispatcher()->addTargetedDelegate(this, 0, true);
+}
+
+void SnakeScene::PlayMunchSound()
+{
+	CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("munch.ogg");
+}
+
+void SnakeScene::PlayGameOverSound()
+{
+	CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("game_over.ogg");
 }

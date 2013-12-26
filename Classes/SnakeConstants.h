@@ -13,6 +13,7 @@ namespace SnakeGolbal
 
 	static const char *SCORE_TTF = "Plok.ttf";
 	static const int SCORE_SIZE = 24;
+	static const int HIGHEST_SCORE_SIZE = 18;
 
 	static const char *BEGIN_TTF = "Plok.ttf";
 	static const int BEGIN_SIZE = 30;

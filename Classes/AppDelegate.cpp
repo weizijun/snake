@@ -24,7 +24,7 @@ bool AppDelegate::applicationDidFinishLaunching()
     CCDirector *pDirector = CCDirector::sharedDirector();
     pDirector->setOpenGLView(CCEGLView::sharedOpenGLView());
 
-	SmartRes::sharedRes()->setVirtualScreenWidth(982);
+	SmartRes::sharedRes()->setVirtualScreenWidth(960);
 
     // turn on display FPS
     pDirector->setDisplayStats(false);

@@ -22,6 +22,9 @@ public:
 	void GameContinueCallback(CCObject* pSender);
 
 
+	void PlayMunchSound();
+	void PlayGameOverSound();
+
 	CREATE_FUNC(SnakeScene);
 
 	bool ccTouchBegan(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent);
@@ -49,10 +52,12 @@ private:
 	bool clicked; 
 
 	int m_nScore;
+	int m_HighestScore;
 	bool m_IsGameRunning;
 	CCSet *m_PauseAllTargets;
 
 	CCLabelTTF* m_ScoreText;
+	CCLabelTTF* m_HighestScoreText;
 	CCLabelTTF* m_GameOverText;
 	CCLabelTTF* m_BeginText;
 	bool m_IsMenuShow;
